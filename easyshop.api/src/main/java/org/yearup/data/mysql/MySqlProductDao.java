@@ -134,21 +134,16 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
             int rowsAffected = statement.executeUpdate();
 
             if (rowsAffected > 0) {
-                // Retrieve the generated keys
-                ResultSet generatedKeys = statement.getGeneratedKeys();
-
-                if (generatedKeys.next()) {
-                    // Retrieve the auto-incremented ID
-                    int orderId = generatedKeys.getInt(1);
-
-                    // get the newly inserted category
-                    return getById(orderId);
+                try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        int newProductId = generatedKeys.getInt(1);
+                        return get.ProductById(newProductId);
+                    }
                 }
             }
-        }
-        catch (SQLException e)
-        {
-            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            System.err.println("Error adding new product: " + e.getMessage());
+            throw new RuntimeException("Error adding new product", e);
         }
         return null;
     }
