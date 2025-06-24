@@ -137,7 +137,7 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
                 try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
                     if (generatedKeys.next()) {
                         int newProductId = generatedKeys.getInt(1);
-                        return get.ProductById(newProductId);
+                        return getById(newProductId);
                     }
                 }
             }

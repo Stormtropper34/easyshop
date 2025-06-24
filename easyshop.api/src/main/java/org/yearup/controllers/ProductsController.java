@@ -43,7 +43,7 @@ public class ProductsController{
     @PreAuthorize("permitAll()")
     public Product getById(@PathVariable int id) {
         try {
-            var product = productDao.getProductById(id);
+            var product = productDao.getById(id);
 
             if (product == null) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found.");
@@ -61,7 +61,7 @@ public class ProductsController{
     @ResponseStatus(HttpStatus.CREATED)
     public Product addProduct(@RequestBody Product product) {
         try {
-            Product createdProduct = productDao.addProduct(product);
+            Product createdProduct = productDao.create(product);
             if (createdProduct == null) {
                 throw new SQLException("Product creation failed in DAO.");
             }
@@ -78,11 +78,8 @@ public class ProductsController{
     public void updateProduct(@PathVariable int id, @RequestBody Product product) {
         try {
             product.setProductId(id);
-            int rowsAffected = productDao.updateProduct(product);
+            productDao.update(id, product);
 
-            if (rowsAffected == 0) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found for update.");
-            }
         } catch (Exception ex) {
             System.err.println("Error updating product ID " + id + ": " + ex.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad. Failed to update product.", ex);
@@ -94,15 +91,13 @@ public class ProductsController{
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(@PathVariable int id) {
         try {
-            var product = productDao.getProductById(id);
+            var product = productDao.getById(id);
             if (product == null) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Product not found for deletion.");
             }
 
-            int rows = productDao.deleteProduct(id);
-            if (rows== 0) {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Failed to delete product unexpectedly.");
-            }
+             productDao.delete(id);
+
         } catch (Exception ex) {
             System.err.println("Error deleting product ID " + id + ": " + ex.getMessage());
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Oops... our bad. Failed to delete product.", ex);

@@ -2,6 +2,7 @@ package org.yearup.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.yearup.data.CategoryDao;
@@ -15,8 +16,8 @@ import java.util.List;
 // add the annotation to make this controller the endpoint for the following url
     // http://localhost:8080/categories
 // add annotation to allow cross site origin requests
-@CrossOrigin
-@RequestMapping
+@CrossOrigin("http://localhost:8080")
+@RequestMapping("/categories")
 @RestController
 public class CategoriesController
 {
@@ -54,12 +55,14 @@ public class CategoriesController
     @GetMapping("{categoryId}/products")
     public List<Product> getProductsById(@PathVariable int categoryId) {
         try {
-            return productDao.getByCategoryId(categoryId);
+            return productDao.listByCategoryId(categoryId);
         } catch (Exception ex) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error retrieving products.");
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public Category addCategory(@RequestBody Category category) {
         try {
@@ -69,6 +72,8 @@ public class CategoriesController
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("{id}")
     public void updateCategory(@PathVariable int id, @RequestBody Category category) {
         try {
@@ -78,6 +83,8 @@ public class CategoriesController
         }
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("{id}")
     public void deleteCategory(@PathVariable int id) {
         try {
