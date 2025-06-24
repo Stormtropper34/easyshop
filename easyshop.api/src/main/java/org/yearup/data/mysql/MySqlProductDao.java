@@ -23,10 +23,19 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
     {
         List<Product> products = new ArrayList<>();
 
-        String sql = "SELECT * FROM products " +
-                "WHERE (category_id = ? OR ? = -1) " +
-                "   AND (price <= ? OR ? = -1) " +
-                "   AND (color = ? OR ? = '') ";
+        String sql = """
+                SELECT *
+                FROM products
+                WHERE (category_id = ? OR ? = -1)
+                AND (price <= ? OR ? = -1)
+                AND (price >= ? OR ? = '')
+                AND (color = ? OR ? = '');
+                """;
+//        String sql = "SELECT * FROM products " +
+//                "WHERE (category_id = ? OR ? = -1) " +
+//                "   AND (price <= ? OR ? = -1) " +
+//                "   AND (color = ? OR ? = '') ";
+//                "   AND (color = ? OR ? = '') "
 
         categoryId = categoryId == null ? -1 : categoryId;
         minPrice = minPrice == null ? new BigDecimal("-1") : minPrice;
@@ -38,10 +47,15 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
             PreparedStatement statement = connection.prepareStatement(sql);
             statement.setInt(1, categoryId);
             statement.setInt(2, categoryId);
+
             statement.setBigDecimal(3, minPrice);
             statement.setBigDecimal(4, minPrice);
-            statement.setString(5, color);
-            statement.setString(6, color);
+
+            statement.setBigDecimal(5, maxPrice);
+            statement.setBigDecimal(6, maxPrice);
+
+            statement.setString(7, color);
+            statement.setString(8, color);
 
             ResultSet row = statement.executeQuery();
 
@@ -69,7 +83,7 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
 
         try (Connection connection = getConnection())
         {
-            PreparedStatement statement = connection.prepareStatement(sql);
+            PreparedStatement statement = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
             statement.setInt(1, categoryId);
 
             ResultSet row = statement.executeQuery();
@@ -92,10 +106,13 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
     @Override
     public Product getById(int productId)
     {
-        String sql = "SELECT * FROM products WHERE product_id = ?";
+        String sql = """
+                SELECT * FROM products 
+                WHERE product_id = ?
+                """;
         try (Connection connection = getConnection())
         {
-            PreparedStatement statement = connection.prepareStatement(sql);
+            PreparedStatement statement = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
             statement.setInt(1, productId);
 
             ResultSet row = statement.executeQuery();
@@ -164,18 +181,18 @@ public class MySqlProductDao extends MySqlDaoBase implements ProductDao
 
         try (Connection connection = getConnection())
         {
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, product.getName());
-            statement.setBigDecimal(2, product.getPrice());
-            statement.setInt(3, product.getCategoryId());
-            statement.setString(4, product.getDescription());
-            statement.setString(5, product.getColor());
-            statement.setString(6, product.getImageUrl());
-            statement.setInt(7, product.getStock());
-            statement.setBoolean(8, product.isFeatured());
-            statement.setInt(9, productId);
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            preparedStatement.setString(1, product.getName());
+            preparedStatement.setBigDecimal(2, product.getPrice());
+            preparedStatement.setInt(3, product.getCategoryId());
+            preparedStatement.setString(4, product.getDescription());
+            preparedStatement.setString(5, product.getColor());
+            preparedStatement.setString(6, product.getImageUrl());
+            preparedStatement.setInt(7, product.getStock());
+            preparedStatement.setBoolean(8, product.isFeatured());
+            preparedStatement.setInt(9, productId);
 
-            statement.executeUpdate();
+            preparedStatement.executeUpdate();
         }
         catch (SQLException e)
         {
