@@ -17,7 +17,7 @@ import java.util.List;
     // http://localhost:8080/categories
 // add annotation to allow cross site origin requests
 @CrossOrigin
-@RequestMapping("categories")
+@RequestMapping("/categories")
 @RestController
 public class CategoriesController
 {
@@ -35,6 +35,7 @@ public class CategoriesController
         try {
             return categoryDao.getAllCategories();
         } catch (Exception ex) {
+            ex.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Error retrieving categories.");
         }
     }
@@ -62,7 +63,6 @@ public class CategoriesController
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
     public Category addCategory(@RequestBody Category category) {
         try {
@@ -73,7 +73,6 @@ public class CategoriesController
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PutMapping("{id}")
     public void updateCategory(@PathVariable int id, @RequestBody Category category) {
         try {
@@ -84,7 +83,6 @@ public class CategoriesController
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("{id}")
     public void deleteCategory(@PathVariable int id) {
         try {

@@ -27,8 +27,8 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
 
         try (Connection connection = getConnection())
         {
-             PreparedStatement preparedStatement = connection.prepareStatement(sql);
-             ResultSet resultSet = preparedStatement.executeQuery();
+            PreparedStatement preparedStatement = connection.prepareStatement(sql,Statement.RETURN_GENERATED_KEYS);
+            ResultSet resultSet = preparedStatement.executeQuery();
 
             while (resultSet.next()) {
                 int categoryId = resultSet.getInt("category_id");
@@ -37,11 +37,10 @@ public class MySqlCategoryDao extends MySqlDaoBase implements CategoryDao
                 categories.add(new Category(categoryId, categoryName, description));
             }
 
-        }
-        catch (SQLException e)
-        {
-
-            throw new RuntimeException(e);
+        } catch (SQLException e) {
+            System.out.println("Error retrieving categories.");
+            e.printStackTrace();
+            throw new RuntimeException("Database failure", e);
         }
 
         return categories;
