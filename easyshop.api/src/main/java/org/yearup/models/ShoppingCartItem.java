@@ -10,6 +10,12 @@ public class ShoppingCartItem
     private int quantity = 1;
     private BigDecimal discountPercent = BigDecimal.ZERO;
 
+    public ShoppingCartItem(Product product, int quantity) {
+        this.product = product;
+        this.quantity = quantity;
+        this.discountPercent = BigDecimal.ZERO;
+    }
+
 
     public Product getProduct()
     {
@@ -44,7 +50,7 @@ public class ShoppingCartItem
     @JsonIgnore
     public int getProductId()
     {
-        return this.product.getProductId();
+        return product != null ? product.getProductId() : 0;
     }
 
     public BigDecimal getLineTotal()

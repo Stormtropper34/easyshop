@@ -74,6 +74,9 @@ public class ShoppingCartController {
     {
         try
         {
+            if (!body.containsKey("quantity")) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Request body must contain 'quantity'");
+            }
             int quantity = body.get("quantity");
             String userName = principal.getName();
             int userId = userDao.getByUserName(userName).getId();
